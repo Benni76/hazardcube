@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HazardCube: Karte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+</head>
+<body>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+    <div class="sidebar d-flex flex-column p-3">
+        <h3>HazardCube</h3>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/box/home" class="nav-link"><i class="bi bi-house-fill"></i> Home</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" disabled><i class="bi bi-speedometer2"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="/box/map" class="nav-link active"><i class="bi bi-map-fill"></i> Karte</a>
+            </li>
+            <li class="nav-item">
+                <a href="/box/warnings" class="nav-link"><i class="bi bi-exclamation-circle-fill"></i> Meldungen</a>
+            </li>
+        </ul>
+        <hr>
+        <div class="dropdown">
+        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>{{firstname}}</strong>
+        </a>
+        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+            <li><a class="dropdown-item" href="#">Einstellungen</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" style="color:red;" href="/box/logout">Ausloggen</a></li>
+        </ul>
+    </div>
+    </div>
+    <div class="main-content">
+      <div id="mapid" style="width:100%; height:100vh;"></div>
+      <div class="tools">
+        <input class="form-control" type="text" placeholder="Search..." id="search">
+        <button class="btn btn-submit" id="search_btn"><i class="bi bi-search"></i></button>
+        <button class="btn btn-submit" data-bs-toggle="tooltip" data-bs-title="Add Zone" data-bs-custom-class="custom-tooltip" id="addZone"><i class="bi bi-plus-circle"></i></button>
+        <button class="btn btn-submit" data-bs-toggle="tooltip" data-bs-title="Asign Box to Zone" data-bs-custom-class="custom-tooltip" id="asignBox"><i class="bi bi-clipboard-plus"></i></button>
+      </div>
+      <ul class="searchResults">
+
+      </ul>
+      <div class="zoneConfirmation">
+        <h3>Willst du diese Zone erstellen?</h3>
+        <hr>
+        <input type="text" class="form-control" placeholder="Zone Name"> <br>
+        <ul class="list-group">
+        </ul>
+        <hr>
+        <button class="btn btn-success">Ja</button>
+        <button class="btn btn-danger">Nein</button>
+      </div>
+      <div class="zoneInformation">
+        <button style="align-self: right;" type="button" class="btn-close" id="close" aria-label="Close"></button>
+        <h3>Name</h3>
+        <!--<h6>Region</h2>-->
+        <div class="weather-widget">
+            <div class="left-section">
+                <div class="temperature">24°</div>
+                <div class="description">Wolkig</div>
+            </div>
+            <div class="right-section">
+                <img src="placeholder-weather.png" alt="Weather Icon" class="weather-icon">
+            </div>
+            <div class="location">Berlin</div>
+        </div>
+        <hr>
+        <h6>Zugewiesene Boxen:</h6>
+        <ul class="list-group">
+            <li class="list-group-item">Box 1</li>
+        </ul> <br>
+        <button class="btn btn-danger">Zone Löschen</button>
+      </div>
+      <div class="boxInformation">
+        <button style="align-self: right;" type="button" class="btn-close" id="close" aria-label="Close"></button>
+        <h3>Box 1</h3>
+        <h6 id="boxRegion">Region</h2>
+        <h6 id="boxAsignedZone">Zone</h6>
+        <hr>
+        <h6 id="boxConnect">Verbunden</h6>
+        <p id="boxTime">vor 5 Minuten</p>
+        <hr>
+        <h6>Daten</h6>
+        <ul class="list-group">
+            <li class="list-group-item">Temperatur: 20°C</li>
+            <li class="list-group-item">Luftfeuchtigkeit: 50%</li>
+            <li class="list-group-item">Luftdruck: 1013 hPa</li>
+        </ul>
+      </div>
+      <div class="asignBox">
+        <h3>Box zuweisen</h3>
+        <hr>
+        <select class="form-select selectZone">
+            <option selected>Wähle eine Zone</option>
+            <option value="1">Zone 1</option>
+            <option value="2">Zone 2</option>
+            <option value="3">Zone 3</option>
+        </select> <br>
+        <ul class="list-group">
+            <li class="list-group">Box 1</li>
+        </ul>
+        <button class="btn btn-success">Ja</button>
+        <button class="btn btn-danger">Nein</button>
+      </div>
+    </div>
+<div class="modal fade" id="warningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nein</button>
+        <button type="button" class="btn btn-primary">Warnung senden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="/box/clientMap.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /*.mt-auto .dropdown a strong {
+            margin-right: 10px;
+            color: #1a1e21;
+        }*/
+        .sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            color: #1a1e21;
+            flex-shrink: 0;
+        }
+        .sidebar .nav-link {
+            color: #1a1e21;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 0px;
+        }
+        /*.sidebar .dropdown-menu {
+            background-color: #343a40;
+        }
+        .sidebar .dropdown-item {
+            color: #1a1e21;
+        }
+        .sidebar .dropdown-item:hover {
+            background-color: #495057;
+        }*/
+        .sidebar .dropdown-item.text-danger:hover {
+            background-color: #dc3545;
+        }
+
+        @keyframes moveInFromBottom {
+            0% {
+                transform: translate(-50%, 100%)
+            }
+            100% {
+                transform: translate(-50%, 0)
+            }
+        }
+
+        /* .tools down in the middle */
+        .tools {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 3%;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            animation: moveInFromBottom 0.5s;
+        }
+        .tools button {
+            margin: 0 5px;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+            border-width: 0;
+        }
+        .tools button:hover {
+            background-color: #ecebeb;
+        }
+
+        .custom-tooltip {
+          --bs-tooltip-bg: var(--bs-white);
+          --bs-tooltip-color: var(--bs-black);
+        }
+
+        /* .zoneComfirmation at the top right */
+        .zoneConfirmation {
+            position: absolute;
+            top: 3%;
+            right: 2%;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            width: 23%;
+        }
+
+        .zoneConfirmation h3 {
+            margin-bottom: 10px;
+        }
+
+        .zoneConfirmation ul {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .zoneConfirmation input {
+            margin-bottom: 10px;
+        }
+
+        /* zoneInformation on the right */
+        .zoneInformation {
+            position: absolute;
+            top: 50%;
+            right: 2%;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            width: 23%;
+            transform: translateY(-50%);
+        }
+
+        .zoneInformation #close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            margin: 10px;
+            /* position it on the right*/
+            
+        }
+
+        .boxInformation {
+            position: absolute;
+            top: 50%;
+            right: 2%;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            width: 23%;
+            transform: translateY(-50%);
+        }
+
+        .boxInformation #close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            margin: 10px;
+            /* position it on the right*/
+            
+        }
+
+
+        .asignBox {
+            position: absolute;
+            top: 50%;
+            right: 2%;
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            width: 23%;
+            transform: translateY(-50%);
+        }
+
+        /* hover over the search bar*/
+        .searchResults {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            z-index: 1000;
+            width: 10%;
+        }
+
+        .searchResults li {
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .searchResults li:hover {
+            background-color: #ecebeb;
+            cursor: pointer;
+        }
+
+        .weather-widget {
+            background: linear-gradient(180deg, #4d84eb 0%, #266ef3 100%);
+            border-radius: 20px;
+            padding: 20px;
+            /*width: 300px;*/
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            height: 170px;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .temperature {
+            font-size: 3em;
+        }
+
+        .description {
+            margin-top: 5px;
+            bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .right-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .weather-icon {
+            width: 110px;
+            height: 90px;
+        }
+
+        .location {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            font-size: 1em;
+        }
+    </style>
+</body>
+</html>

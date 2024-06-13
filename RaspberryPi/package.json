@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "bme680-sensor": "^1.1.0",
+    "bno055-imu-node": "^1.4.0",
+    "coffee-script": "^1.12.7",
+    "dgram": "^1.0.1",
+    "gps": "^0.6.1",
+    "i2c-bus": "^5.2.3",
+    "onoff": "^6.0.3",
+    "raspi": "^6.0.1",
+    "raspi-i2c": "^6.2.4",
+    "raspi-kit-ads1x15": "^1.0.0",
+    "rpio": "^2.4.2",
+    "serialport": "^12.0.0",
+    "socket.io-client": "^4.7.5",
+    "vl53l0x": "^2.0.0"
+  }
+}
